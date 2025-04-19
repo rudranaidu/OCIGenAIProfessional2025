@@ -1,0 +1,128 @@
+## 🔑 1. **Limits & Quotas (Know what’s fixed, what can be changed)**
+
+### ✅ **Default Limits (per tenancy)**  
+- 🔹 **Agents** → 2  
+- 🔹 **Knowledge Bases (KBs)** → 3  
+- 🔹 **KBs per Agent** → 2  
+- 🔹 **Files per ingestion job** → 1,000  
+- 🔹 **Agent Endpoints per Agent** → 3  
+- 🔹 **Sessions per Agent Endpoint** → 1,000
+
+> 🧠 **Note:** All values above can be increased via [OCI Limits Increase](https://docs.oracle.com/en-us/iaas/Content/General/Concepts/servicelimits.htm)
+
+### ❌ **Fixed Limits (Can’t change)**  
+- ⚠️ Max 20 tools per agent  
+- ⚠️ 1 data source per knowledge base  
+- ⚠️ Max file size → 100 MB  
+- ⚠️ 1 active ingestion job per data source  
+- ⚠️ 2 KBs per agent  
+- ⚠️ Sessions auto-delete after **7 days idle** (min 1 hour)  
+- ⚠️ Region support is limited — check OCI documentation
+
+> 🔍 **Clarification:**  
+> - `knowledge-base-count = 3` → Max KBs *in total* across tenancy  
+> - `2 KBs per agent` → Max *per agent* limit
+
+---
+
+## 🧠 2. **Knowledge Bases, Data Sources, Agents – Life Cycle Rules**
+
+### 🗑️ **Deleting Rules**
+- 🚫 Can **only delete** KBs if not attached to agents
+- 🚫 Must delete data sources **before** deleting the KB
+- ✅ Can delete data sources *even if used by agents* (agent remains but ignores deleted data)
+- 🚫 Must delete all endpoints **before deleting** an agent
+
+---
+
+## 💾 3. **SQL Execution by Agents**
+- ✅ SQL results > 100 rows → saved as `.csv`
+- ❌ Results ≤ 100 rows → not stored
+- 📦 Storage Settings:
+  - Bucket Name
+  - Object Prefix (optional)
+  - Retention Period: **Up to 1,440 minutes (24 hrs)**, default: **360 mins (6 hrs)**
+
+---
+
+## 🎛️ 4. **Prompt Generation Controls – Temperature, Top-p, Top-k**
+
+### 🔥 **Temperature**
+- Range: 0 → 1 (creativity vs accuracy)
+  - 0 = deterministic
+  - >0.7 = creative (but prone to hallucination)
+
+### 🎲 **Top-p (nucleus sampling)**
+- p = cumulative probability  
+  - p=0.5 → safer, focused  
+  - p=1.0 → all tokens considered (high diversity, low control)
+
+### 🧮 **Top-k**
+- k = number of top tokens to sample from  
+  - k=0 / -1 = disable top-k (all tokens considered)
+  - Higher k = more randomness
+
+> ✅ Cohere default: `top-k=0`  
+> ✅ Meta Llama default: `top-k=-1`
+
+---
+
+## 🛠️ 5. **Fine-Tuning & Custom Models**
+
+### 📦 Fine-Tuning Cluster
+- ⚙️ 8 units → `cohere.command-r-16k`
+- ⚙️ 2 units → all other models  
+- ✅ Reuse the same cluster for multiple models (must use same base model)
+
+### 🧾 Fine-Tuning Data Format
+- Format: `.jsonl`  
+```json
+{"prompt": "Your prompt", "completion": "Expected response"}
+```
+- ✅ Min 32 prompt/completion pairs  
+- 🚫 Only 1 training file per custom model  
+- Dataset split → 80% train / 20% validate  
+- Data is **double encrypted** (AES-256 + optional customer key)
+
+> 🔐 Data auto-deleted after training ends
+
+---
+
+## 🌐 6. **Endpoints & Clusters**
+
+### 📍 **Hosting Clusters**
+- Each custom model → multiple endpoints possible  
+- Each cluster → up to **50 endpoints**
+
+### 📍 **Endpoint Use Cases**
+- Inference for fine-tuned and base models
+- Must create an endpoint to use any model
+
+> ⚠️ Can’t delete a cluster while training or serving an active endpoint
+
+---
+
+## 🌍 7. **General OCI GenAI Facts**
+
+- 📜 **Languages Supported (Cohere Command R)**:
+  - Arabic, Mandarin, English, French, German, Italian, Japanese, Korean, Portuguese, Spanish
+
+- 🧾 Embeddings:
+  - Max 96 inputs/run  
+  - Max 512 tokens/input  
+  - Format: `.txt`, 1 input per line
+
+- 📦 Retired Models:
+  - ⚠️ Not available in on-demand playground or API
+  - ✅ Still run if hosted on an active dedicated cluster
+
+---
+
+### 🧠 **Memory Tips for Exam**
+- "**1** Data source per KB", "**2** KBs per agent", "**3** total KBs" → 1-2-3 Rule  
+- "**1,000**" is a magic number: files/job, files per data source, sessions  
+- "**Fixed limits**" → anything with hardware/storage constraints (tools, file size, etc.)
+
+---
+
+Would you like this as a PDF or flashcards for quick revision?
