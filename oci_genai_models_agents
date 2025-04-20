@@ -122,7 +122,3 @@
 - "**1** Data source per KB", "**2** KBs per agent", "**3** total KBs" → 1-2-3 Rule  
 - "**1,000**" is a magic number: files/job, files per data source, sessions  
 - "**Fixed limits**" → anything with hardware/storage constraints (tools, file size, etc.)
-
----
-
-Would you like this as a PDF or flashcards for quick revision?
